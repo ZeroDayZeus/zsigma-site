@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>zSigma | Offensive Security for SMEs</title>
+  <meta name="description" content="zSigma delivers penetration testing, security assessments and continuous security support for SMEs, with compliance add-ons (NIS2 / ISO 27001 / GDPR)." />
+
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    img-src 'self' https://raw.githubusercontent.com data:;
+    style-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline';
+    base-uri 'self';
+    form-action 'self' mailto:;
+    frame-ancestors 'none';
+    object-src 'none';
+    upgrade-insecure-requests;
+  ">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()">
+
+  <link rel="preload" as="image" href="https://raw.githubusercontent.com/ZeroDayZeus/personal-inflation-tracker/main/zsigma1.png" fetchpriority="high">
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+
+    /* =========================
+       THEME TOKENS (dark + light)
+       ========================= */
+    :root{
+      --primary:#3b82f6;
+      --accent:#8b5cf6;
+      --accent2:#60a5fa;
+      --grad: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+
+      /* dark defaults */
+      --bg:#0f172a;
+      --bg-header: rgba(15, 23, 42, 0.80);
+      --bg-header-scrolled: rgba(15, 23, 42, 0.95);
+
+      --text:#ffffff;
+      --text-2: rgba(255,255,255,0.80);
+      --text-muted: rgba(255,255,255,0.70);
+      --text-soft: rgba(255,255,255,0.60);
+
+      --card: rgba(255,255,255,0.03);
+      --card-2: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.10);
+      --border-2: rgba(255,255,255,0.20);
+
+      --shadow-1: 0 25px 50px rgba(0,0,0,0.30);
+      --shadow-2: 0 35px 70px rgba(59,130,246,0.30);
+
+      --heading-from: #ffffff;
+      --heading-to: #60a5fa;
+    }
+
+    :root[data-theme="light"]{
+      --bg:#f8fafc;
+      --bg-header: rgba(248,250,252,0.82);
+      --bg-header-scrolled: rgba(248,250,252,0.95);
+
+      --text:#0f172a;
+      --text-2: rgba(15,23,42,0.85);
+      --text-muted: rgba(15,23,42,0.70);
+      --text-soft: rgba(15,23,42,0.60);
+
+      --card: rgba(255,255,255,0.85);
+      --card-2: rgba(255,255,255,0.92);
+      --border: rgba(15,23,42,0.12);
+      --border-2: rgba(15,23,42,0.18);
+
+      --shadow-1: 0 25px 50px rgba(2,6,23,0.12);
+      --shadow-2: 0 35px 70px rgba(2,6,23,0.18);
+
+      --heading-from: #0f172a;
+      --heading-to: #3b82f6;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(2deg); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.35); }
+      50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.55); }
+    }
+    @keyframes slide-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    html{scroll-behavior:smooth}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Inter',system-ui,sans-serif;
+      line-height:1.6;
+      color:var(--text);
+      background: var(--bg);
+      overflow-x:hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.14) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+    :root[data-theme="light"] body::before{
+      background:
+        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.10) 0%, transparent 55%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 55%),
+        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 60%);
+    }
+
+    .grain{
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.35;
+    }
+    :root[data-theme="light"] .grain{opacity:0.18}
+
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1280px;margin:0 auto;padding:0 24px;position:relative;z-index:2}
+    section{padding:100px 0;scroll-margin-top:80px;position:relative;z-index:2}
+    :focus-visible{outline:none;box-shadow:0 0 0 4px rgba(59,130,246,.35);border-radius:8px}
+
+    /* Header */
+    header{
+      position:fixed;top:0;left:0;right:0;z-index:1000;
+      background: var(--bg-header);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom:1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    header.scrolled{
+      background: var(--bg-header-scrolled);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+    :root[data-theme="light"] header.scrolled{box-shadow: 0 10px 30px rgba(2,6,23,0.08);}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:20px}
+
+    .brand{display:flex;align-items:center;gap:14px;min-width:200px;transition: transform 0.2s ease;}
+    .brand:hover{transform: scale(1.02)}
+    .brand img{
+      width:48px;height:48px;border-radius:12px;
+      box-shadow: 0 8px 20px rgba(59,130,246,0.30);
+      object-fit:cover;
+      transition: all 0.3s ease;
+    }
+    .brand:hover img{
+      box-shadow: 0 12px 30px rgba(59,130,246,0.45);
+      transform: rotate(-5deg);
+    }
+    .brand .wordmark{display:flex;flex-direction:column;line-height:1.2}
+    .brand .wordmark strong{
+      font-size:1.25rem;
+      letter-spacing:0.1em;
+      font-weight:900;
+      background: linear-gradient(135deg, var(--heading-from) 0%, var(--heading-to) 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .brand .wordmark span{font-size:0.85rem;color:var(--text-soft);font-weight:600}
+
+    .nav-links{list-style:none;display:flex;align-items:center;gap:8px}
+    .nav-links a{
+      font-weight:600;
+      padding:10px 18px;border-radius:12px;
+      color: color-mix(in srgb, var(--text) 82%, transparent);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position:relative;
+      overflow:hidden;
+    }
+    .nav-links a::before{
+      content:"";position:absolute;inset:0;
+      background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(139,92,246,0.18));
+      opacity:0;transition: opacity 0.3s ease;
+    }
+    .nav-links a:hover::before{opacity:1}
+    .nav-links a:hover{color:var(--text);transform: translateY(-2px)}
+
+    .nav-actions{display:flex;align-items:center;gap:12px}
+    .pill{
+      cursor:pointer;
+      padding:10px 16px;border-radius:12px;
+      font-weight:700;letter-spacing:0.02em;
+      border:1px solid var(--border-2);
+      background: color-mix(in srgb, var(--card-2) 55%, transparent);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      color: var(--text);
+      user-select:none;
+    }
+    .pill:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.45);
+      background: rgba(59,130,246,0.14);
+    }
+    .cta-small{
+      padding:10px 20px;border-radius:12px;
+      font-weight:800;
+      background: var(--grad);
+      color:#fff;
+      box-shadow: 0 8px 20px rgba(59,130,246,0.35);
+      transition: all 0.3s ease;
+      position:relative;overflow:hidden;
+    }
+    .cta-small::before{
+      content:"";position:absolute;inset:0;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      opacity:0;transition: opacity 0.3s ease;
+    }
+    .cta-small:hover::before{opacity:1}
+    .cta-small:hover{transform: translateY(-3px);box-shadow: 0 12px 30px rgba(59,130,246,0.45)}
+
+    .burger{
+      display:none;width:48px;height:48px;border-radius:12px;
+      border:1px solid var(--border-2);
+      background: color-mix(in srgb, var(--card-2) 55%, transparent);
+      backdrop-filter: blur(10px);
+      cursor:pointer;
+      transition: all 0.3s ease;
+      align-items:center;justify-content:center;
+    }
+    .burger:hover{background: color-mix(in srgb, var(--card-2) 75%, transparent);}
+    .burger svg{width:24px;height:24px;stroke:var(--text)}
+
+    .mobile-panel{display:none;padding:0 0 16px 0;animation: slide-up 0.3s ease}
+    .mobile-panel[hidden]{display:none !important}
+    .mobile-panel .nav-links{
+      flex-direction:column;align-items:stretch;gap:8px;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(20px);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.22);
+    }
+    :root[data-theme="light"] .mobile-panel .nav-links{box-shadow: 0 20px 40px rgba(2,6,23,0.10);}
+    .mobile-panel .nav-links a{padding:14px 16px}
+    .mobile-panel .nav-actions{padding-top:12px;gap:12px;flex-wrap:wrap}
+
+    .overlay{
+      display:none;position:fixed;inset:0;
+      background: rgba(0,0,0,0.65);
+      z-index:999;
+      backdrop-filter: blur(4px);
+      transition: opacity 0.3s ease;
+    }
+    :root[data-theme="light"] .overlay{background: rgba(2,6,23,0.35);}
+    .overlay.show{display:block}
+
+    /* Hero */
+    .hero{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      padding-top:100px;
+      position:relative;
+    }
+    .hero-bg{position:absolute;inset:0;overflow:hidden;z-index:0}
+    .hero-bg::before{
+      content:"";
+      position:absolute;
+      width:800px;height:800px;border-radius:50%;
+      background: radial-gradient(circle, rgba(59,130,246,0.25), transparent 70%);
+      top:-200px;left:-200px;
+      animation: float 20s ease-in-out infinite;
+    }
+    .hero-bg::after{
+      content:"";
+      position:absolute;
+      width:600px;height:600px;border-radius:50%;
+      background: radial-gradient(circle, rgba(139,92,246,0.18), transparent 70%);
+      bottom:-150px;right:-150px;
+      animation: float 25s ease-in-out infinite reverse;
+    }
+
+    .hero-wrap{
+      display:grid;
+      grid-template-columns:1.1fr 0.9fr;
+      gap:60px;
+      align-items:center;
+      position:relative;z-index:1;
+      min-width:0;
+    }
+
+    .kicker{
+      display:inline-flex;gap:12px;align-items:center;
+      padding:10px 20px;border-radius:50px;
+      background: rgba(59,130,246,0.14);
+      border:1px solid rgba(59,130,246,0.25);
+      color: var(--accent2);
+      font-weight:700;
+      font-size:0.9rem;
+      width:fit-content;
+      margin-bottom:24px;
+      animation: pulse-glow 3s ease-in-out infinite;
+      backdrop-filter: blur(10px);
+    }
+    .kicker .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: var(--grad);
+      box-shadow: 0 0 20px rgba(59,130,246,0.55);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    h1{
+      font-size:clamp(2.5rem, 5vw, 4.5rem);
+      line-height:1.1;
+      letter-spacing:-0.02em;
+      margin-bottom:24px;
+      font-weight:900;
+      background: linear-gradient(135deg, var(--heading-from) 0%, var(--heading-to) 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    .subtitle{
+      font-size:1.25rem;
+      color: var(--text-2);
+      max-width:60ch;
+      margin-bottom:32px;
+      line-height:1.7;
+      font-weight:500;
+    }
+
+    .microtrust{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px}
+    .microtrust span,
+    .trust span{
+      display:inline-flex;align-items:center;gap:10px;
+      padding:12px 16px;border-radius:12px;
+      background: var(--card-2);
+      border:1px solid var(--border);
+      backdrop-filter: blur(10px);
+      color: color-mix(in srgb, var(--text) 92%, transparent);
+      font-weight:600;
+      font-size:0.95rem;
+      transition: all 0.3s ease;
+    }
+    .microtrust span:hover,.trust span:hover{background: color-mix(in srgb, var(--card-2) 85%, transparent);transform: translateY(-2px)}
+
+    .hero-cta{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      gap:10px;
+      padding:16px 32px;border-radius:12px;
+      font-weight:800;font-size:1.05rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position:relative;overflow:hidden;
+    }
+    .btn::before{
+      content:"";position:absolute;inset:0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.10), transparent);
+      opacity:0;transition: opacity 0.3s ease;
+    }
+    .btn:hover::before{opacity:1}
+    .btn-primary{
+      background: var(--grad);
+      color:#fff;
+      box-shadow: 0 10px 30px rgba(59,130,246,0.35);
+    }
+    .btn-primary:hover{transform: translateY(-4px);box-shadow: 0 15px 40px rgba(59,130,246,0.45)}
+    .btn-ghost{
+      background: var(--card-2);
+      border:1px solid var(--border-2);
+      color: var(--text);
+      backdrop-filter: blur(10px);
+    }
+    .btn-ghost:hover{
+      background: color-mix(in srgb, var(--card-2) 90%, transparent);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(2,6,23,0.10);
+    }
+
+    .cta-subnote{color: var(--text-soft);font-weight:600;font-size:0.95rem;margin-bottom:18px}
+    .trust{display:flex;gap:16px;flex-wrap:wrap;margin-top:18px}
+
+    .hero-card{
+      position:relative;
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:32px;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-1);
+      transition: all 0.5s ease;
+      min-width:0;
+    }
+    .hero-card:hover{
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-2);
+      border-color: rgba(59,130,246,0.30);
+    }
+
+    .hero-logo{
+      display:flex;align-items:center;justify-content:center;
+      padding:24px;border-radius:20px;
+      background: var(--card-2);
+      border:2px dashed rgba(59,130,246,0.25);
+      margin-bottom:24px;
+      transition: all 0.3s ease;
+    }
+    .hero-logo:hover{border-style:solid;background: rgba(59,130,246,0.10)}
+    .hero-logo img{
+      width:100%;
+      max-width:280px;
+      height:auto;
+      filter: drop-shadow(0 20px 40px rgba(59,130,246,0.30));
+      transition: all 0.3s ease;
+    }
+    .hero-logo:hover img{transform: scale(1.05) rotate(2deg)}
+
+    .mini-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:16px;
+    }
+    .mini{
+      background: var(--card-2);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:20px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      min-width:0;
+    }
+    .mini:hover{
+      background: color-mix(in srgb, var(--card-2) 90%, transparent);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(59,130,246,0.15);
+    }
+    .mini strong{display:block;color: var(--accent2);font-size:1.25rem;font-weight:800;margin-bottom:4px}
+    .mini span{color: var(--text-muted);font-weight:600;font-size:0.9rem}
+
+    /* Sections */
+    .services{background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg) 70%, transparent))}
+    .section-head{text-align:center;margin-bottom:60px;max-width:800px;margin-left:auto;margin-right:auto}
+    .section-head h2{
+      font-size:clamp(2rem, 4vw, 3rem);
+      letter-spacing:-0.02em;
+      font-weight:900;
+      margin-bottom:16px;
+      background: linear-gradient(135deg, var(--heading-from) 0%, var(--heading-to) 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+    .section-head p{color: var(--text-muted);font-weight:500;font-size:1.15rem;line-height:1.7}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:24px}
+    .card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:32px;
+      backdrop-filter: blur(20px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      top:-50%;
+      left:-50%;
+      width:200%;
+      height:200%;
+      background: radial-gradient(circle, rgba(59,130,246,0.10), transparent 70%);
+      opacity:0;
+      transition: opacity 0.4s ease;
+    }
+    .card:hover::before{opacity:1}
+    .card:hover{
+      transform: translateY(-10px);
+      box-shadow: 0 25px 50px rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.28);
+      background: color-mix(in srgb, var(--card) 85%, transparent);
+    }
+    .icon{
+      width:64px;height:64px;border-radius:16px;
+      display:flex;align-items:center;justify-content:center;
+      background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(139,92,246,0.18));
+      border:1px solid rgba(59,130,246,0.22);
+      margin-bottom:20px;
+      font-size:2rem;
+      position:relative;z-index:1;
+      transition: all 0.3s ease;
+    }
+    .card:hover .icon{transform: scale(1.1) rotate(5deg);box-shadow: 0 10px 30px rgba(59,130,246,0.25)}
+    .card h3{color: var(--text);font-size:1.35rem;font-weight:800;margin-bottom:12px;position:relative;z-index:1}
+    .card p{color: var(--text-muted);font-weight:500;line-height:1.7;position:relative;z-index:1}
+    .meta{margin-top:16px;color: color-mix(in srgb, var(--accent2) 90%, transparent);font-weight:700;font-size:0.9rem;position:relative;z-index:1}
+
+    .cred{
+      background: color-mix(in srgb, var(--card) 60%, transparent);
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+    }
+    .cred-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:24px;margin-top:40px}
+    .cred-item{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:32px;
+      backdrop-filter: blur(20px);
+      transition: all 0.4s ease;
+    }
+    .cred-item:hover{
+      transform: translateY(-8px);
+      background: color-mix(in srgb, var(--card) 90%, transparent);
+      box-shadow: 0 20px 40px rgba(59,130,246,0.12);
+    }
+    .cred-item h3{color: var(--text);font-size:1.25rem;font-weight:800;margin-bottom:12px}
+    .cred-item p{color: var(--text-muted);font-weight:500;line-height:1.7}
+
+    .deliverables{margin-top:40px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+    .chip{
+      padding:12px 20px;border-radius:50px;
+      background: rgba(59,130,246,0.14);
+      border:1px solid rgba(59,130,246,0.22);
+      backdrop-filter: blur(10px);
+      font-weight:700;
+      color: var(--accent2);
+      transition: all 0.3s ease;
+    }
+    .chip:hover{
+      background: rgba(59,130,246,0.22);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(59,130,246,0.18);
+    }
+
+    .compliance{
+      background: color-mix(in srgb, var(--card) 60%, transparent);
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+    }
+    .badges{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:40px}
+    .badge{
+      display:flex;align-items:center;gap:12px;
+      padding:16px 24px;border-radius:50px;
+      background: var(--card-2);
+      border:1px solid var(--border);
+      backdrop-filter: blur(20px);
+      font-weight:800;
+      color: var(--text);
+      transition: all 0.3s ease;
+      font-size:1.05rem;
+    }
+    .badge:hover{
+      background: rgba(59,130,246,0.16);
+      border-color: rgba(59,130,246,0.28);
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(59,130,246,0.16);
+    }
+
+    /* Contact */
+    .contact{background: linear-gradient(135deg, rgba(59,130,246,0.06), rgba(139,92,246,0.06))}
+    .contact-wrap{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+    .contact-card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:40px;
+      backdrop-filter: blur(20px);
+      transition: all 0.4s ease;
+      min-width:0;
+    }
+    .contact-card:hover{
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px rgba(59,130,246,0.12);
+      border-color: rgba(59,130,246,0.24);
+    }
+    .contact-card h3{color: var(--accent2);font-size:1.75rem;font-weight:800;margin-bottom:16px}
+    .contact-card p{color: var(--text-muted);font-weight:500;line-height:1.7}
+
+    .contact-list{margin-top:24px;display:flex;flex-direction:column;gap:16px}
+    .contact-item{
+      display:flex;gap:16px;align-items:flex-start;
+      padding:20px;border-radius:16px;
+      background: var(--card-2);
+      border:1px solid var(--border);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      min-width:0;
+    }
+    .contact-item:hover{background: color-mix(in srgb, var(--card-2) 90%, transparent);transform: translateX(8px)}
+    .contact-item b{color: var(--text);font-size:1.1rem}
+    .contact-item span{color: var(--text-muted);font-weight:600;word-break: break-word}
+
+    form{display:grid;gap:20px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    label{font-weight:700;color: var(--text);font-size:0.95rem;margin-bottom:8px;display:block}
+    input, textarea{
+      width:100%;
+      padding:14px 18px;
+      border-radius:12px;
+      border:1px solid var(--border-2);
+      background: var(--card-2);
+      backdrop-filter: blur(10px);
+      color: var(--text);
+      font:inherit;
+      transition: all 0.3s ease;
+      min-width:0;
+    }
+    input::placeholder, textarea::placeholder{color: color-mix(in srgb, var(--text) 45%, transparent)}
+    textarea{min-height:150px;resize:vertical}
+    input:focus, textarea:focus{
+      outline:none;
+      border-color: rgba(59,130,246,0.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.18);
+      background: color-mix(in srgb, var(--card-2) 90%, transparent);
+    }
+
+    .form-actions{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:8px}
+    .hint{color: var(--text-soft);font-weight:600;font-size:0.9rem}
+    .submit{
+      border:none;cursor:pointer;
+      padding:16px 32px;border-radius:12px;
+      font-weight:800;
+      color:#fff;
+      background: var(--grad);
+      box-shadow: 0 10px 30px rgba(59,130,246,0.35);
+      transition: all 0.3s ease;
+      font-size:1.05rem;
+      white-space:nowrap;
+    }
+    .submit:hover{transform: translateY(-3px);box-shadow: 0 15px 40px rgba(59,130,246,0.45)}
+
+    .toast{
+      display:none;
+      margin-top:16px;
+      padding:16px 20px;
+      border-radius:12px;
+      background: rgba(34,197,94,0.15);
+      border:1px solid rgba(34,197,94,0.30);
+      color: #4ade80;
+      font-weight:700;
+      backdrop-filter: blur(10px);
+    }
+    .toast.err{
+      background: rgba(239,68,68,0.15);
+      border-color: rgba(239,68,68,0.30);
+      color:#f87171;
+    }
+
+    .copy-email{
+      margin-top:16px;
+      display:inline-flex;align-items:center;gap:12px;
+      cursor:pointer;
+      padding:14px 20px;border-radius:12px;
+      border:1px solid var(--border-2);
+      background: var(--card-2);
+      backdrop-filter: blur(10px);
+      font-weight:700;
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
+    .copy-email:hover{
+      transform: translateY(-3px);
+      background: rgba(59,130,246,0.14);
+      border-color: rgba(59,130,246,0.35);
+      box-shadow: 0 10px 25px rgba(59,130,246,0.18);
+    }
+
+    /* Footer */
+    footer{
+      background: color-mix(in srgb, var(--bg) 70%, #000 30%);
+      border-top:1px solid var(--border);
+      padding:60px 0;
+    }
+    :root[data-theme="light"] footer{background: rgba(15,23,42,0.05);}
+    .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:40px}
+    .footer-grid h4{color: var(--accent2);margin-bottom:16px;font-weight:800;font-size:1.1rem}
+    .footer-grid p{color: var(--text-muted);font-weight:600;line-height:1.7}
+    .footer-grid a{
+      display:block;
+      color: var(--text-muted);
+      margin-bottom:12px;
+      font-weight:600;
+      transition: all 0.2s ease;
+    }
+    .footer-grid a:hover{color: var(--text);transform: translateX(5px)}
+    .fineprint{margin-top:24px;color: var(--text-soft);font-weight:600;font-size:0.9rem}
+
+    /* Reveal */
+    .reveal{opacity:0;transform: translateY(30px);transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1)}
+    .reveal.show{opacity:1;transform: translateY(0)}
+
+    /* Mobile float CTA */
+    .mobile-float-cta{
+      display:none;
+      position:fixed;
+      left:16px;right:16px;
+      bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+      z-index:1100;
+      text-align:center;
+      padding:16px 24px;
+      border-radius:50px;
+      font-weight:800;
+      color:#fff;
+      background: var(--grad);
+      box-shadow: 0 15px 40px rgba(59,130,246,0.45);
+      transition: all 0.3s ease;
+    }
+    .mobile-float-cta.is-hidden{opacity:0;pointer-events:none;transform: translateY(20px)}
+
+    /* Responsive */
+    @media (max-width: 1024px){
+      .hero-wrap{grid-template-columns:1fr;gap:40px}
+      .hero-card{order:-1}
+      .contact-wrap{grid-template-columns:1fr}
+    }
+    @media (max-width: 768px){
+      nav{padding:12px 0}
+      .nav-links{display:none}
+      .burger{display:inline-flex}
+      .mobile-panel{display:block}
+      .nav-actions .cta-small{display:none}
+      .brand img{width:40px;height:40px}
+      .pill{padding:10px 14px;font-size:0.85rem}
+      .row{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+      .footer-grid{grid-template-columns:1fr}
+      .cred-grid{grid-template-columns:1fr}
+      section{padding:80px 0}
+      .hero{padding-top:100px}
+      body{padding-bottom:100px}
+      .mobile-float-cta{display:block}
+      h1{font-size:2.5rem}
+      .subtitle{font-size:1.1rem}
+      .mini-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="grain"></div>
+  <div class="overlay" id="overlay" aria-hidden="true"></div>
+
+  <header id="header">
+    <div class="container">
+      <nav>
+        <a class="brand" href="#top" aria-label="zSigma home">
+          <img
+            src="https://raw.githubusercontent.com/ZeroDayZeus/personal-inflation-tracker/main/zsigma1.png"
+            alt="zSigma logo"
+            width="48" height="48"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <div class="wordmark">
+            <strong>zSIGMA</strong>
+            <span data-en="Offensive Security for SMEs" data-it="Offensive Security per PMI">Offensive Security for SMEs</span>
+          </div>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="#services" data-en="Security Services" data-it="Servizi Security">Security Services</a></li>
+          <li><a href="#credibility" data-en="About us" data-it="Chi siamo">About us</a></li>
+          <li><a href="#compliance" data-en="Compliance" data-it="Compliance">Compliance</a></li>
+          <li><a href="#contact" data-en="Contact" data-it="Contatti">Contact</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <button class="pill" id="themeToggle" type="button" aria-label="Toggle theme">🌙</button>
+          <span class="pill" id="langToggle" role="button" tabindex="0" aria-label="Switch language">EN / IT</span>
+          <a class="cta-small" href="#contact" data-en="Request a quote" data-it="Richiedi preventivo">Request a quote</a>
+
+          <button class="burger" id="burger" aria-label="Open menu" aria-controls="mobilePanel" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/>
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      <div class="mobile-panel" id="mobilePanel" hidden>
+        <ul class="nav-links">
+          <li><a href="#services" data-en="Security Services" data-it="Servizi Security">Security Services</a></li>
+          <li><a href="#credibility" data-en="About us" data-it="Chi siamo">About us</a></li>
+          <li><a href="#compliance" data-en="Compliance" data-it="Compliance">Compliance</a></li>
+          <li><a href="#contact" data-en="Contact" data-it="Contatti">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="pill" id="themeToggleMobile" type="button" aria-label="Toggle theme">🌙</button>
+          <span class="pill" id="langToggleMobile" role="button" tabindex="0">EN / IT</span>
+          <a class="cta-small" href="#contact" data-en="Request a quote" data-it="Richiedi preventivo">Request a quote</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="top" class="hero">
+    <div class="hero-bg"></div>
+
+    <div class="container">
+      <div class="hero-wrap">
+        <div>
+          <div class="kicker reveal">
+            <span class="dot" aria-hidden="true"></span>
+            <span data-en="Pen testing • AppSec • Security assessments" data-it="Pen test • AppSec • Security assessment">
+              Pen testing • AppSec • Security assessments
+            </span>
+          </div>
+
+          <h1 data-it="Pentest reali. Fix chiari." data-en="Real pentests. Clear fixes.">
+            Real pentests. Clear fixes.
+          </h1>
+
+          <p class="subtitle"
+            data-it="Test manuali e attacchi realistici per ridurre il rischio e soddisfare i requisiti NIS2."
+            data-en="Manual penetration testing focused on real attack paths and actionable remediation.">
+            Manual penetration testing focused on real attack paths and actionable remediation.
+          </p>
+
+          <div class="microtrust reveal" aria-label="Trust signals">
+            <span>🧪 <span data-en="Manual testing + tooling" data-it="Test manuali + tool">Manual testing + tooling</span></span>
+            <span>🧾 <span data-en="Executive + technical report" data-it="Report executive + tecnico">Executive + technical report</span></span>
+            <span>🔁 <span data-en="Retest available" data-it="Retest disponibile">Retest available</span></span>
+          </div>
+
+          <div class="hero-cta reveal">
+            <a class="btn btn-primary" href="#contact" data-en="Book a free scoping call" data-it="Prenota una call di scoping gratuita">
+              Book a free scoping call
+            </a>
+            <a class="btn btn-ghost" href="#services" data-en="See pen testing services" data-it="Vedi servizi di pen test">
+              See pen testing services
+            </a>
+          </div>
+
+          <div class="cta-subnote reveal"
+               data-en="Fast scope in 24–48h • Fixed deliverables • Clear timelines"
+               data-it="Scope rapido in 24–48h • Deliverable fissi • Tempi chiari">
+            Fast scope in 24–48h • Fixed deliverables • Clear timelines
+          </div>
+
+          <div class="trust reveal" aria-label="Key benefits">
+            <span>✅ <span data-en="Actionable vulnerabilities" data-it="Vulnerabilità azionabili">Actionable vulnerabilities</span></span>
+            <span>🧰 <span data-en="Fix guidance & evidence" data-it="Guida fix ed evidenze">Fix guidance & evidence</span></span>
+            <span>🛡️ <span data-en="SME-friendly engagement" data-it="Ingaggio su misura PMI">SME-friendly engagement</span></span>
+          </div>
+        </div>
+
+        <aside class="hero-card reveal" aria-label="zSigma overview">
+          <div class="hero-logo">
+            <img
+              src="https://raw.githubusercontent.com/ZeroDayZeus/personal-inflation-tracker/main/zsigma1.png"
+              alt="zSigma padlock logo"
+              width="280" height="280"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+
+          <div class="mini-grid">
+            <div class="mini">
+              <strong data-en="7–14 days" data-it="7–14 giorni">7–14 days</strong>
+              <span data-en="Typical pentest delivery" data-it="Consegna tipica pentest">Typical pentest delivery</span>
+            </div>
+            <div class="mini">
+              <strong data-en="High signal" data-it="Alta qualità">High signal</strong>
+              <span data-en="Real findings, low noise" data-it="Risultati reali, poco rumore">Real findings, low noise</span>
+            </div>
+            <div class="mini">
+              <strong data-en="Web • API • Cloud" data-it="Web • API • Cloud">Web • API • Cloud</strong>
+              <span data-en="Modern SME attack surface" data-it="Superficie d'attacco moderna">Modern SME attack surface</span>
+            </div>
+            <div class="mini">
+              <strong data-en="Compliance add-on" data-it="Add-on compliance">Compliance add-on</strong>
+              <span data-en="Evidence for audits" data-it="Evidenze per audit">Evidence for audits</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <section id="services" class="services">
+    <div class="container">
+      <div class="section-head">
+        <h2 data-en="Cybersecurity services" data-it="Servizi di cybersecurity">Cybersecurity services</h2>
+        <p data-en="Offensive-first engagements to reduce real risk: pentesting, AppSec, cloud reviews and continuous security support."
+           data-it="Ingaggi offensive-first per ridurre il rischio reale: pentest, AppSec, cloud review e supporto continuo.">
+          Offensive-first engagements to reduce real risk: pentesting, AppSec, cloud reviews and continuous security support.
+        </p>
+      </div>
+
+      <div class="grid">
+        <article class="card reveal">
+          <div class="icon">🧨</div>
+          <h3 data-en="Web & API Penetration Testing" data-it="Penetration test Web & API">Web & API Penetration Testing</h3>
+          <p data-en="Manual testing aligned to OWASP. Auth, session, business logic, IDOR, SSRF, injection, access control and more."
+             data-it="Test manuali allineati OWASP. Auth, sessioni, business logic, IDOR, SSRF, injection, access control e altro.">
+            Manual testing aligned to OWASP. Auth, session, business logic, IDOR, SSRF, injection, access control and more.
+          </p>
+          <div class="meta" data-en="Deliverables: exec + technical report + remediation plan" data-it="Deliverable: report executive + tecnico + piano remediation">
+            Deliverables: exec + technical report + remediation plan
+          </div>
+        </article>
+
+        <article class="card reveal">
+          <div class="icon">☁️</div>
+          <h3 data-en="Cloud Security Review (AWS/Azure/GCP)" data-it="Cloud Security Review (AWS/Azure/GCP)">Cloud Security Review (AWS/Azure/GCP)</h3>
+          <p data-en="Identity, IAM, storage exposure, logging, network boundaries, misconfigurations and hardening roadmap."
+             data-it="Identità, IAM, esposizione storage, logging, confini di rete, misconfig e roadmap di hardening.">
+            Identity, IAM, storage exposure, logging, network boundaries, misconfigurations and hardening roadmap.
+          </p>
+          <div class="meta" data-en="Output: prioritized fixes + quick wins" data-it="Output: fix prioritizzati + quick wins">
+            Output: prioritized fixes + quick wins
+          </div>
+        </article>
+
+        <article class="card reveal">
+          <div class="icon">🕸️</div>
+          <h3 data-en="External Attack Surface Review" data-it="External Attack Surface Review">External Attack Surface Review</h3>
+          <p data-en="OSINT-driven mapping of domains, subdomains, exposed services and risky misconfigurations—before attackers do."
+             data-it="Mappatura OSINT di domini, sottodomini, servizi esposti e misconfig rischiose—prima degli attaccanti.">
+            OSINT-driven mapping of domains, subdomains, exposed services and risky misconfigurations—before attackers do.
+          </p>
+          <div class="meta" data-en="Outcome: exposure reduction plan" data-it="Risultato: piano riduzione esposizione">
+            Outcome: exposure reduction plan
+          </div>
+        </article>
+
+        <article class="card reveal">
+          <div class="icon">🏢</div>
+          <h3 data-en="Internal Network & AD Security Testing" data-it="Test rete interna & AD">Internal Network & AD Security Testing</h3>
+          <p data-en="Privilege escalation paths, lateral movement, credential risks, AD posture and actionable hardening steps."
+             data-it="Percorsi di escalation, lateral movement, rischi credenziali, postura AD e hardening azionabile.">
+            Privilege escalation paths, lateral movement, credential risks, AD posture and actionable hardening steps.
+          </p>
+          <div class="meta" data-en="Ideal for: SMEs with hybrid environments" data-it="Ideale per: PMI con ambienti ibridi">
+            Ideal for: SMEs with hybrid environments
+          </div>
+        </article>
+
+        <article class="card reveal">
+          <div class="icon">🔄</div>
+          <h3 data-en="Continuous Security Support" data-it="Supporto sicurezza continuativo">Continuous Security Support</h3>
+          <p data-en="Ongoing security triage, vulnerability management, retesting, and security guidance without hiring a full team."
+             data-it="Triage continuo, vulnerability management, retest e guida security senza assumere un team completo.">
+            Ongoing security triage, vulnerability management, retesting, and security guidance without hiring a full team.
+          </p>
+          <div class="meta" data-en="Monthly support / vSecOps" data-it="Supporto mensile / vSecOps">
+            Monthly support / vSecOps
+          </div>
+        </article>
+
+        <article class="card reveal">
+          <div class="icon">📋</div>
+          <h3 data-en="Compliance enablement (add-on)" data-it="Compliance (add-on)">Compliance enablement (add-on)</h3>
+          <p data-en="Turn security work into audit-ready evidence for NIS2 / ISO 27001 / GDPR—lean templates and practical controls."
+             data-it="Trasformiamo il lavoro security in evidenze per NIS2 / ISO 27001 / GDPR—template snelli e controlli pratici.">
+            Turn security work into audit-ready evidence for NIS2 / ISO 27001 / GDPR—lean templates and practical controls.
+          </p>
+          <div class="meta" data-en="Best paired with: pentest + remediation" data-it="Meglio con: pentest + remediation">
+            Best paired with: pentest + remediation
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="credibility" class="cred">
+    <div class="container">
+      <div class="section-head">
+        <h2 data-en="About us" data-it="Chi siamo">About us</h2>
+        <p data-en="We’re an offensive security team focused on SMEs. We run real-world, manual-first testing and produce reports your engineers can implement rapidly."
+           data-it="Siamo un team di offensive security focalizzato sulle PMI. Eseguiamo test realistici, manual-first, e produciamo report che i tuoi tecnici possono implementare rapidamente.">
+          We’re an offensive security team focused on SMEs. We run real-world, manual-first testing and produce reports your engineers can implement rapidly.
+        </p>
+      </div>
+
+      <div class="cred-grid">
+        <div class="cred-item reveal">
+          <h3 data-en="Offensive security, not checklists" data-it="Offensive security, non checklist">Offensive security, not checklists</h3>
+          <p data-en="We test like real attackers do — focusing on realistic attack paths, business logic flaws, and access control issues, not just automated scan results."
+             data-it="Testiamo come farebbe un vero attaccante: percorsi realistici, business logic e controllo degli accessi, non solo risultati di scanner automatici.">
+            We test like real attackers do — focusing on realistic attack paths, business logic flaws, and access control issues, not just automated scan results.
+          </p>
+        </div>
+
+        <div class="cred-item reveal">
+          <h3 data-en="Engineer-friendly deliverables" data-it="Deliverable pensati per i tecnici">Engineer-friendly deliverables</h3>
+          <p data-en="Our reports are built for technical teams: clear priorities, reproducible steps, concrete evidence, and actionable remediation guidance."
+             data-it="I nostri report sono progettati per chi deve risolvere i problemi: priorità chiare, passaggi riproducibili, evidenze concrete e remediation operative.">
+            Our reports are built for technical teams: clear priorities, reproducible steps, concrete evidence, and actionable remediation guidance.
+          </p>
+        </div>
+
+        <div class="cred-item reveal">
+          <h3 data-en="Clear engagement & retest" data-it="Ingaggio chiaro & retest">Clear engagement & retest</h3>
+          <p data-en="We define scope and rules of engagement upfront, work with transparent timelines, and offer retesting to confirm risks are actually closed."
+             data-it="Definiamo scope e regole d’ingaggio in anticipo, lavoriamo con tempistiche trasparenti e offriamo retest per verificare che i rischi siano davvero chiusi.">
+            We define scope and rules of engagement upfront, work with transparent timelines, and offer retesting to confirm risks are actually closed.
+          </p>
+        </div>
+      </div>
+
+      <div class="deliverables" aria-label="About highlights">
+        <div class="chip" data-en="Manual-first testing" data-it="Test manual-first">Manual-first testing</div>
+        <div class="chip" data-en="Actionable remediation" data-it="Remediation azionabile">Actionable remediation</div>
+        <div class="chip" data-en="Executive & technical reporting" data-it="Report executive e tecnici">Executive & technical reporting</div>
+        <div class="chip" data-en="SME-friendly scope" data-it="Scope per PMI">SME-friendly scope</div>
+        <div class="chip" data-en="Retest option" data-it="Opzione retest">Retest option</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="compliance" class="compliance">
+    <div class="container">
+      <div class="section-head">
+        <h2 data-en="Compliance & Regulatory Readiness" data-it="Compliance & Preparazione agli Audit">
+          Compliance & Regulatory Readiness
+        </h2>
+        <p data-en="We support NIS2, ISO 27001 and GDPR with a practical approach: real security controls and audit-ready evidence."
+           data-it="Supportiamo NIS2, ISO 27001 e GDPR con un approccio pratico: controlli di sicurezza reali ed evidenze pronte per audit.">
+          We support NIS2, ISO 27001 and GDPR with a practical approach: real security controls and audit-ready evidence.
+        </p>
+      </div>
+
+      <div class="badges" aria-label="Supported standards">
+        <div class="badge">🔒 NIS2</div>
+        <div class="badge">📜 ISO 27001</div>
+        <div class="badge">⚖️ GDPR</div>
+        <div class="badge">🧾 Audit evidence</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="container">
+      <div class="section-head">
+        <h2 data-en="Request a quote" data-it="Richiedi preventivo">Request a quote</h2>
+        <p data-en="Tell us what you want tested (web app, API, cloud, internal). We'll reply with scope, timeline and a fixed deliverable list."
+           data-it="Dicci cosa vuoi testare (web app, API, cloud, interno). Rispondiamo con scope, timeline e lista deliverable fissi.">
+          Tell us what you want tested (web app, API, cloud, internal). We'll reply with scope, timeline and a fixed deliverable list.
+        </p>
+      </div>
+
+      <div class="contact-wrap">
+        <div class="contact-card reveal">
+          <h3 data-en="Fast contact" data-it="Contatto rapido">Fast contact</h3>
+          <p data-en="Email us directly or use the form. If your email client isn't configured, use the copy button."
+             data-it="Scrivici via email o usa il form. Se non hai un client email configurato, usa il tasto copia.">
+            Email us directly or use the form. If your email client isn't configured, use the copy button.
+          </p>
+
+          <div class="contact-list">
+            <div class="contact-item">
+              <div>📧</div>
+              <div>
+                <b>Email</b><br />
+                <span><a href="mailto:contact@zsigma.ai">contact@zsigma.ai</a></span>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <div>🧪</div>
+              <div>
+                <b data-en="Typical inputs" data-it="Info utili">Typical inputs</b><br />
+                <span data-en="Targets, auth type, test window, environment details"
+                      data-it="Target, tipo auth, finestra test, dettagli ambiente">
+                  Targets, auth type, test window, environment details
+                </span>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <div>🕒</div>
+              <div>
+                <b data-en="Response time" data-it="Tempo di risposta">Response time</b><br />
+                <span data-en="Usually within 24–48 hours" data-it="Di solito entro 24–48 ore">
+                  Usually within 24–48 hours
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button class="copy-email" id="copyEmailBtn" type="button" aria-label="Copy email">
+            📋 <span data-en="Copy email address" data-it="Copia indirizzo email">Copy email address</span>
+          </button>
+          <div class="toast" id="copyToast" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="contact-card reveal">
+          <h3 data-en="Send a message" data-it="Invia un messaggio">Send a message</h3>
+
+          <form id="contactForm" novalidate>
+            <div class="row">
+              <div>
+                <label for="name" data-en="Full name" data-it="Nome e cognome">Full name</label>
+                <input id="name" name="name" type="text" autocomplete="name"
+                       placeholder="John Doe" data-en="John Doe" data-it="Mario Rossi" />
+              </div>
+              <div>
+                <label for="email" data-en="Email" data-it="Email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required
+                       placeholder="you@company.com" data-en="you@company.com" data-it="tu@azienda.com" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="company" data-en="Company" data-it="Azienda">Company</label>
+                <input id="company" name="company" type="text" autocomplete="organization"
+                       placeholder="Your company" data-en="Your company" data-it="La tua azienda" />
+              </div>
+              <div>
+                <label for="topic" data-en="What do you want tested?" data-it="Cosa vuoi testare?">What do you want tested?</label>
+                <input id="topic" name="topic" type="text"
+                       placeholder="Web app / API / Cloud / Internal / AD..."
+                       data-en="Web app / API / Cloud / Internal / AD..."
+                       data-it="Web app / API / Cloud / Interno / AD..." />
+              </div>
+            </div>
+
+            <div>
+              <label for="message" data-en="Details" data-it="Dettagli">Details</label>
+              <textarea id="message" name="message" required
+                        placeholder="Targets, auth, test window, environment, any constraints..."
+                        data-en="Targets, auth, test window, environment, any constraints..."
+                        data-it="Target, auth, finestra test, ambiente, vincoli..."></textarea>
+            </div>
+
+            <div class="form-actions">
+              <div class="hint"
+                   data-en="This opens your email client. We'll reply with scope, timeline and deliverables."
+                   data-it="Questo apre il client email. Rispondiamo con scope, timeline e deliverable.">
+                This opens your email client. We'll reply with scope, timeline and deliverables.
+              </div>
+              <button class="submit" type="submit" data-en="Send" data-it="Invia">Send</button>
+            </div>
+
+            <div class="toast" id="toast" role="status" aria-live="polite"
+                 data-en="Ready! Your email client should open now."
+                 data-it="Fatto! Il tuo client email dovrebbe aprirsi ora.">
+              Ready! Your email client should open now.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>zSIGMA</h4>
+          <p data-en="Penetration testing and offensive security for SMEs. Compliance support as an add-on—security first."
+             data-it="Penetration test e offensive security per PMI. Supporto compliance come add-on—prima la security.">
+            Penetration testing and offensive security for SMEs. Compliance support as an add-on—security first.
+          </p>
+          <div class="fineprint">© <span id="year"></span> zSigma. All rights reserved.</div>
+        </div>
+
+        <div>
+          <h4 data-en="Security Services" data-it="Servizi Security">Security Services</h4>
+          <a href="#services" data-en="Web & API Pentest" data-it="Pentest Web & API">Web & API Pentest</a>
+          <a href="#services" data-en="Cloud Security Review" data-it="Cloud Security Review">Cloud Security Review</a>
+          <a href="#services" data-en="Attack Surface Review" data-it="Attack Surface Review">Attack Surface Review</a>
+          <a href="#services" data-en="Internal & AD Testing" data-it="Test Interno & AD">Internal & AD Testing</a>
+        </div>
+
+        <div>
+          <h4 data-en="Contact" data-it="Contatti">Contact</h4>
+          <a href="mailto:contact@zsigma.ai">contact@zsigma.ai</a>
+          <a href="#contact" data-en="Request a quote" data-it="Richiedi preventivo">Request a quote</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <a class="mobile-float-cta is-hidden" id="mobileFloatCta" href="#contact"
+     data-en="Request a quote" data-it="Richiedi preventivo">Request a quote</a>
+
+  <script>
+    /* =========================
+       Language toggle
+       ========================= */
+    let currentLang = 'en';
+    const langToggle = document.getElementById('langToggle');
+    const langToggleMobile = document.getElementById('langToggleMobile');
+    const header = document.getElementById('header');
+
+    function applyLanguage() {
+      document.querySelectorAll('[data-en]').forEach(el => {
+        const txt = el.getAttribute(`data-${currentLang}`);
+        if (!txt) return;
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+          el.placeholder = txt;
+          return;
+        }
+        el.textContent = txt;
+      });
+    }
+    function toggleLanguage(){
+      currentLang = currentLang === 'en' ? 'it' : 'en';
+      applyLanguage();
+    }
+    [langToggle, langToggleMobile].forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener('click', toggleLanguage);
+      btn.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleLanguage(); }
+      });
+    });
+
+    /* =========================
+       Theme toggle (dark/light)
+       - persists in localStorage
+       - default follows system
+       ========================= */
+    const themeToggle = document.getElementById('themeToggle');
+    const themeToggleMobile = document.getElementById('themeToggleMobile');
+
+    function getPreferredTheme(){
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+    function applyTheme(theme){
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      const icon = theme === 'dark' ? '🌙' : '☀️';
+      if (themeToggle) themeToggle.textContent = icon;
+      if (themeToggleMobile) themeToggleMobile.textContent = icon;
+    }
+    function toggleTheme(){
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    }
+    [themeToggle, themeToggleMobile].forEach(btn => {
+      if(!btn) return;
+      btn.addEventListener('click', toggleTheme);
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTheme(); }
+      });
+    });
+
+    /* init theme */
+    applyTheme(getPreferredTheme());
+
+    /* =========================
+       Mobile menu
+       ========================= */
+    const burger = document.getElementById('burger');
+    const mobilePanel = document.getElementById('mobilePanel');
+    const overlay = document.getElementById('overlay');
+
+    function getFocusable(container){
+      return Array.from(container.querySelectorAll('a,button,[tabindex]:not([tabindex="-1"])'))
+        .filter(el => !el.hasAttribute('disabled'));
+    }
+    let lastFocus = null;
+
+    function openMenu(){
+      if (!mobilePanel) return;
+      lastFocus = document.activeElement;
+      mobilePanel.removeAttribute('hidden');
+      overlay.classList.add('show');
+      burger.setAttribute('aria-expanded','true');
+      overlay.setAttribute('aria-hidden','false');
+
+      const focusables = getFocusable(mobilePanel);
+      focusables[0]?.focus();
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu(){
+      if (!mobilePanel) return;
+      mobilePanel.setAttribute('hidden','');
+      overlay.classList.remove('show');
+      burger.setAttribute('aria-expanded','false');
+      overlay.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+      if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+    }
+    function isMenuOpen(){ return mobilePanel && !mobilePanel.hasAttribute('hidden'); }
+
+    burger?.addEventListener('click', () => { isMenuOpen() ? closeMenu() : openMenu(); });
+    overlay?.addEventListener('click', closeMenu);
+    mobilePanel?.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', closeMenu));
+
+    document.addEventListener('keydown', (e) => {
+      if (!isMenuOpen()) return;
+      if (e.key === 'Escape') { e.preventDefault(); closeMenu(); return; }
+      if (e.key === 'Tab') {
+        const focusables = getFocusable(mobilePanel);
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+
+    /* =========================
+       Reveal animations
+       ========================= */
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('show'); });
+    }, { threshold: 0.1, rootMargin: '0px 0px -80px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    /* Header scrolled */
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
+    }, { passive: true });
+
+    /* =========================
+       Contact form -> mailto
+       ========================= */
+    const form = document.getElementById('contactForm');
+    const toast = document.getElementById('toast');
+
+    function encode(s){ return encodeURIComponent((s || '').trim()); }
+
+    function showToast(msg, isErr=false){
+      if (!toast) return;
+      toast.classList.toggle('err', !!isErr);
+      toast.style.display = 'block';
+      toast.textContent = msg;
+    }
+
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name')?.value || '';
+      const email = document.getElementById('email')?.value || '';
+      const company = document.getElementById('company')?.value || '';
+      const topic = document.getElementById('topic')?.value || '';
+      const message = document.getElementById('message')?.value || '';
+
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+      if (!emailOk || !message.trim()) {
+        showToast(
+          currentLang === 'it'
+            ? 'Inserisci una email valida e i dettagli del test.'
+            : 'Please enter a valid email and testing details.',
+          true
+        );
+        return;
+      }
+
+      const subject = topic ? `zSigma – ${topic}` : 'zSigma – Penetration testing request';
+      const body =
+`Name: ${name}
+Email: ${email}
+Company: ${company}
+Requested test: ${topic}
+
+Details:
+${message}`;
+
+      window.location.href = `mailto:contact@zsigma.ai?subject=${encode(subject)}&body=${encode(body)}`;
+
+      showToast(
+        toast.getAttribute(`data-${currentLang}`) || (currentLang === 'it' ? 'Fatto!' : 'Ready!'),
+        false
+      );
+    });
+
+    /* Copy email */
+    const copyBtn = document.getElementById('copyEmailBtn');
+    const copyToast = document.getElementById('copyToast');
+
+    copyBtn?.addEventListener('click', async () => {
+      try{
+        await navigator.clipboard.writeText('contact@zsigma.ai');
+        copyToast.classList.remove('err');
+        copyToast.style.display = 'block';
+        copyToast.textContent = currentLang === 'it' ? 'Email copiata negli appunti.' : 'Email copied to clipboard.';
+        setTimeout(() => copyToast.style.display = 'none', 2000);
+      }catch{
+        copyToast.classList.add('err');
+        copyToast.style.display = 'block';
+        copyToast.textContent = currentLang === 'it'
+          ? 'Impossibile copiare: copia manualmente contact@zsigma.ai'
+          : 'Unable to copy: please copy manually contact@zsigma.ai';
+      }
+    });
+
+    /* Mobile floating CTA */
+    const contactSection = document.getElementById('contact');
+    const mobileFloatCta = document.getElementById('mobileFloatCta');
+
+    function isMobile(){ return window.matchMedia("(max-width: 768px)").matches; }
+    let ctaAllowed = false;
+
+    function updateCtaVisibility(){
+      if (!mobileFloatCta) return;
+      if (!isMobile() || !ctaAllowed) {
+        mobileFloatCta.classList.add('is-hidden');
+        return;
+      }
+      mobileFloatCta.classList.remove('is-hidden');
+    }
+
+    window.addEventListener('scroll', () => {
+      ctaAllowed = (window.scrollY > 300);
+      updateCtaVisibility();
+    }, { passive: true });
+
+    window.addEventListener('resize', updateCtaVisibility);
+
+    if (contactSection && mobileFloatCta) {
+      const ctaObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!isMobile()) return;
+          if (entry.isIntersecting) mobileFloatCta.classList.add('is-hidden');
+          else updateCtaVisibility();
+        });
+      }, { threshold: 0.2 });
+      ctaObserver.observe(contactSection);
+    }
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* init lang */
+    applyLanguage();
+    updateCtaVisibility();
+  </script>
+</body>
+</html>
