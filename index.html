@@ -12,7 +12,7 @@
     style-src 'self' 'unsafe-inline';
     script-src 'self' 'unsafe-inline';
     base-uri 'self';
-    form-action 'self' mailto:;
+    form-action 'self';
     frame-ancestors 'none';
     object-src 'none';
     upgrade-insecure-requests;
@@ -640,6 +640,7 @@
       white-space:nowrap;
     }
     .submit:hover{transform: translateY(-3px);box-shadow: 0 15px 40px rgba(59,130,246,0.45)}
+    .submit[disabled]{opacity:0.65;cursor:not-allowed;transform:none;box-shadow:none}
 
     .toast{
       display:none;
@@ -1140,17 +1141,17 @@
 
             <div class="form-actions">
               <div class="hint"
-                   data-en="This opens your email client. We'll reply with scope, timeline and deliverables."
-                   data-it="Questo apre il client email. Rispondiamo con scope, timeline e deliverable.">
-                This opens your email client. We'll reply with scope, timeline and deliverables.
+                   data-en="This sends your message securely. We'll reply with scope, timeline and deliverables."
+                   data-it="Questo invia il messaggio in modo sicuro. Rispondiamo con scope, timeline e deliverable.">
+                This sends your message securely. We'll reply with scope, timeline and deliverables.
               </div>
-              <button class="submit" type="submit" data-en="Send" data-it="Invia">Send</button>
+              <button class="submit" id="submitBtn" type="submit" data-en="Send" data-it="Invia">Send</button>
             </div>
 
             <div class="toast" id="toast" role="status" aria-live="polite"
-                 data-en="Ready! Your email client should open now."
-                 data-it="Fatto! Il tuo client email dovrebbe aprirsi ora.">
-              Ready! Your email client should open now.
+                 data-en="Thanks! Message sent."
+                 data-it="Grazie! Messaggio inviato.">
+              Thanks! Message sent.
             </div>
           </form>
         </div>
@@ -1326,12 +1327,11 @@
     }, { passive: true });
 
     /* =========================
-       Contact form -> mailto
+       Contact form -> /api/contact (D1)
        ========================= */
     const form = document.getElementById('contactForm');
     const toast = document.getElementById('toast');
-
-    function encode(s){ return encodeURIComponent((s || '').trim()); }
+    const submitBtn = document.getElementById('submitBtn');
 
     function showToast(msg, isErr=false){
       if (!toast) return;
@@ -1340,17 +1340,27 @@
       toast.textContent = msg;
     }
 
-    form?.addEventListener('submit', (e) => {
+    function setSubmitting(isSubmitting){
+      if (!submitBtn) return;
+      submitBtn.disabled = !!isSubmitting;
+      if (isSubmitting){
+        submitBtn.textContent = currentLang === 'it' ? 'Invio...' : 'Sending...';
+      } else {
+        submitBtn.textContent = submitBtn.getAttribute(`data-${currentLang}`) || (currentLang === 'it' ? 'Invia' : 'Send');
+      }
+    }
+
+    form?.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const name = document.getElementById('name')?.value || '';
       const email = document.getElementById('email')?.value || '';
       const company = document.getElementById('company')?.value || '';
       const topic = document.getElementById('topic')?.value || '';
-      const message = document.getElementById('message')?.value || '';
+      const details = document.getElementById('message')?.value || '';
 
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-      if (!emailOk || !message.trim()) {
+      if (!emailOk || !details.trim()) {
         showToast(
           currentLang === 'it'
             ? 'Inserisci una email valida e i dettagli del test.'
@@ -1360,22 +1370,48 @@
         return;
       }
 
-      const subject = topic ? `zSigma – ${topic}` : 'zSigma – Penetration testing request';
-      const body =
+      const message =
 `Name: ${name}
 Email: ${email}
 Company: ${company}
 Requested test: ${topic}
 
 Details:
-${message}`;
+${details}`;
 
-      window.location.href = `mailto:contact@zsigma.ai?subject=${encode(subject)}&body=${encode(body)}`;
+      setSubmitting(true);
 
-      showToast(
-        toast.getAttribute(`data-${currentLang}`) || (currentLang === 'it' ? 'Fatto!' : 'Ready!'),
-        false
-      );
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, message })
+        });
+
+        if (res.ok) {
+          showToast(
+            toast.getAttribute(`data-${currentLang}`) || (currentLang === 'it' ? 'Grazie! Messaggio inviato.' : 'Thanks! Message sent.'),
+            false
+          );
+          form.reset();
+        } else {
+          showToast(
+            currentLang === 'it'
+              ? 'Errore durante l’invio. Riprova o scrivi a contact@zsigma.ai.'
+              : 'Error sending message. Please retry or email contact@zsigma.ai.',
+            true
+          );
+        }
+      } catch (err) {
+        showToast(
+          currentLang === 'it'
+            ? 'Errore di rete. Riprova o scrivi a contact@zsigma.ai.'
+            : 'Network error. Please retry or email contact@zsigma.ai.',
+          true
+        );
+      } finally {
+        setSubmitting(false);
+      }
     });
 
     /* Copy email */
