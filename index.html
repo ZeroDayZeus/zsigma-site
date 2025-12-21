@@ -1397,16 +1397,16 @@ ${details}`;
         } else {
           showToast(
             currentLang === 'it'
-              ? 'Errore durante l’invio. Riprova o scrivi a contact@zsigma.ai.'
-              : 'Error sending message. Please retry or email contact@zsigma.ai.',
+              ? 'Errore durante l’invio. Riprova o usa il contact form.'
+              : 'Error sending message. Please retry or email the contact form.',
             true
           );
         }
       } catch (err) {
         showToast(
           currentLang === 'it'
-            ? 'Errore di rete. Riprova o scrivi a contact@zsigma.ai.'
-            : 'Network error. Please retry or email contact@zsigma.ai.',
+            ? 'Errore di rete. Riprova o usa il contact form.'
+            : 'Network error. Please retry or email the contact form.',
           true
         );
       } finally {
@@ -1420,7 +1420,7 @@ ${details}`;
 
     copyBtn?.addEventListener('click', async () => {
       try{
-        await navigator.clipboard.writeText('contact@zsigma.ai');
+        await navigator.clipboard.writeText('the contact form');
         copyToast.classList.remove('err');
         copyToast.style.display = 'block';
         copyToast.textContent = currentLang === 'it' ? 'Email copiata negli appunti.' : 'Email copied to clipboard.';
@@ -1429,8 +1429,8 @@ ${details}`;
         copyToast.classList.add('err');
         copyToast.style.display = 'block';
         copyToast.textContent = currentLang === 'it'
-          ? 'Impossibile copiare: copia manualmente contact@zsigma.ai'
-          : 'Unable to copy: please copy manually contact@zsigma.ai';
+          ? 'Impossibile copiare: copia manualmente il contact form'
+          : 'Unable to copy: please copy manually the contact form';
       }
     });
 
