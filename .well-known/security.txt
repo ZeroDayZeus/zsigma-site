@@ -1,0 +1,4 @@
+Contact: mailto:contact@zsigma.ai
+Preferred-Languages: it, en
+Canonical: https://www.zsigma.ai/.well-known/security.txt
+Policy: https://www.zsigma.ai/responsible-disclosure/

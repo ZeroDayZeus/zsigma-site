@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsible Disclosure | zSigma</title>
+  <meta name="description" content="zSigma responsible disclosure policy and safe harbor guidelines." />
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif;line-height:1.6;background:#0f172a;color:#fff}
+    a{color:#60a5fa}
+    .wrap{max-width:900px;margin:0 auto;padding:48px 20px}
+    .card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:24px}
+    h1{margin:0 0 12px 0;font-size:2rem}
+    h2{margin:24px 0 10px 0;font-size:1.25rem;color:#93c5fd}
+    ul{margin:8px 0 0 20px}
+    code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:8px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);text-decoration:none}
+    .small{color:rgba(255,255,255,.75);font-size:.95rem}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a class="btn" href="https://www.zsigma.ai/">← Back to zsigma.ai</a>
+      <span class="small">Last updated: 2025-12-21</span>
+    </div>
+
+    <div class="card">
+      <h1>Responsible Disclosure</h1>
+      <p>
+        We appreciate the work of security researchers who help keep the internet safer. If you believe you have found a security issue in zSigma
+        systems, please report it responsibly.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Send reports to: <a href="mailto:contact@zsigma.ai">contact@zsigma.ai</a>
+      </p>
+
+      <h2>Scope</h2>
+      <ul>
+        <li><code>www.zsigma.ai</code> and <code>zsigma.ai</code></li>
+        <li>Public endpoints served by our site, including <code>/api/contact</code></li>
+      </ul>
+
+      <h2>Out of scope</h2>
+      <ul>
+        <li>Denial of Service (DoS / DDoS), load testing, or disruptive scanning</li>
+        <li>Social engineering, phishing, or physical attacks</li>
+        <li>Credential stuffing or brute forcing accounts</li>
+        <li>Issues in third-party services we do not control</li>
+      </ul>
+
+      <h2>Guidelines</h2>
+      <ul>
+        <li>Provide a clear description of the issue and its impact</li>
+        <li>Include steps to reproduce (PoC minimal, non-destructive)</li>
+        <li>Avoid accessing or exfiltrating data beyond what is required to demonstrate the issue</li>
+        <li>Do not publicly disclose without giving us reasonable time to address the issue</li>
+      </ul>
+
+      <h2>Response targets</h2>
+      <ul>
+        <li>Acknowledgement: within 48 hours</li>
+        <li>Status update: within 7 days</li>
+      </ul>
+
+      <h2>Safe harbor</h2>
+      <p>
+        If you act in good faith, follow this policy, and avoid privacy violations and disruption, we will not pursue legal action against you for your research.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
