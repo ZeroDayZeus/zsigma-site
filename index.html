@@ -659,25 +659,6 @@
       color:#f87171;
     }
 
-    .copy-email{
-      margin-top:16px;
-      display:inline-flex;align-items:center;gap:12px;
-      cursor:pointer;
-      padding:14px 20px;border-radius:12px;
-      border:1px solid var(--border-2);
-      background: var(--card-2);
-      backdrop-filter: blur(10px);
-      font-weight:700;
-      color: var(--text);
-      transition: all 0.3s ease;
-    }
-    .copy-email:hover{
-      transform: translateY(-3px);
-      background: rgba(59,130,246,0.14);
-      border-color: rgba(59,130,246,0.35);
-      box-shadow: 0 10px 25px rgba(59,130,246,0.18);
-    }
-
     /* Footer */
     footer{
       background: color-mix(in srgb, var(--bg) 70%, #000 30%);
@@ -1092,11 +1073,6 @@
               </div>
             </div>
           </div>
-
-          <button class="copy-email" id="copyEmailBtn" type="button" aria-label="Copy email">
-            📋 <span data-en="Copy email address" data-it="Copia indirizzo email">Copy email address</span>
-          </button>
-          <div class="toast" id="copyToast" role="status" aria-live="polite"></div>
         </div>
 
         <div class="contact-card reveal">
@@ -1177,6 +1153,8 @@
           <a href="#services" data-en="Cloud Security Review" data-it="Cloud Security Review">Cloud Security Review</a>
           <a href="#services" data-en="Attack Surface Review" data-it="Attack Surface Review">Attack Surface Review</a>
           <a href="#services" data-en="Internal & AD Testing" data-it="Test Interno & AD">Internal & AD Testing</a>
+          <a href="/responsible-disclosure/" class="fineprint"> Responsible Disclosure </a>
+
         </div>
 
         <div>
@@ -1414,25 +1392,6 @@ ${details}`;
       }
     });
 
-    /* Copy email */
-    const copyBtn = document.getElementById('copyEmailBtn');
-    const copyToast = document.getElementById('copyToast');
-
-    copyBtn?.addEventListener('click', async () => {
-      try{
-        await navigator.clipboard.writeText('the contact form');
-        copyToast.classList.remove('err');
-        copyToast.style.display = 'block';
-        copyToast.textContent = currentLang === 'it' ? 'Email copiata negli appunti.' : 'Email copied to clipboard.';
-        setTimeout(() => copyToast.style.display = 'none', 2000);
-      }catch{
-        copyToast.classList.add('err');
-        copyToast.style.display = 'block';
-        copyToast.textContent = currentLang === 'it'
-          ? 'Impossibile copiare: copia manualmente il contact form'
-          : 'Unable to copy: please copy manually the contact form';
-      }
-    });
 
     /* Mobile floating CTA */
     const contactSection = document.getElementById('contact');
