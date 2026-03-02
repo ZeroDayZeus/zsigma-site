@@ -728,6 +728,8 @@
       .subtitle{font-size:1.1rem}
       .mini-grid{grid-template-columns:1fr}
     }
+    .footer-grid .contact-lines span { display: block; margin: 6px 0; }
+    .footer-grid .contact-lines .label { opacity: .85; font-weight: 600; }
   </style>
 </head>
 
@@ -1160,8 +1162,20 @@
 
         <div>
           <h4 data-en="Contact" data-it="Contatti">Contact</h4>
-          <span>Use the contact form</span>
-          <a href="#contact" data-en="Request a quote" data-it="Richiedi preventivo">Request a quote</a>
+          <div class="contact-lines">
+  <span><strong>ZSigma S.R.L.</strong></span>
+  <span><a href="https://www.zsigma.ai" rel="noopener">www.zsigma.ai</a></span>
+
+  <span><span class="label">Email:</span> <a href="mailto:contact@zsigma.ai">contact@zsigma.ai</a></span>
+  <span><span class="label">Tel:</span> <a href="tel:+390331939460">+39 0331 939460</a></span>
+
+  <span>Sede Legale: Via Lazzaretto, 6/A</span>
+  <span>Sede Operativa: Via S. Martino, 5</span>
+  <span>21013 Gallarate (VA)</span>
+  <span>P. IVA 04128230127</span>
+
+  <a href="#contact" data-en="Request a quote" data-it="Richiedi preventivo">Request a quote</a>
+</div>
         </div>
       </div>
     </div>
